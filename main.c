@@ -4,6 +4,7 @@
 #include "alloc.h"
 
 int main(int argc, char *argv[]) {
-    free(alloc(5));
+    printf("%p\n", alloc(5));
+    free(5);
     return 0;
 }
