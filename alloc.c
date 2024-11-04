@@ -99,5 +99,15 @@ void *alloc(size_t size) {
 }
 
 void free(void *ptr) {
-    /* TO-DO */
+    /* get header address and size */
+    header_t *header = (header_t *) ptr - 1;
+    size_t size = header->size;
+
+    /* create new node */
+    node_t *node = (node_t *) header;
+    node->size = size;
+    node->next = free_list_head;
+
+    /* change list head to new node */
+    free_list_head = node;
 }
