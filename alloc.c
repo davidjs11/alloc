@@ -73,7 +73,7 @@ void *alloc(size_t size) {
     if (new_size > 0) {
         /* get address of new node */
         char *end = (char *) free_node;
-        end += free_node->size + sizeof(node_t);
+        end += size + sizeof(node_t);
         node_t *new_node = (node_t *) end;
 
         /* check that the end doesn't pass the heap limit */
@@ -85,7 +85,9 @@ void *alloc(size_t size) {
             node_t *node = free_list_head;
             while (node->next != NULL && node->next != free_node)
                 node = node->next;
-            if (node->next == free_node)
+            if (node == free_list_head)
+                free_list_head = new_node;
+            else if (node->next == free_node)
                 node->next = new_node;
         }
     }
