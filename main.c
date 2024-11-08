@@ -4,21 +4,24 @@
 #include "alloc.h"
 
 int main(int argc, char *argv[]) {
-    int *nums = (int *) alloc(500 * sizeof(int));
+    int *nums1 = (int *) alloc(10 * sizeof(int));
+    print_free_node_list();
+    int *nums2 = (int *) alloc(10 * sizeof(int));
+    print_free_node_list();
+    int *nums3 = (int *) alloc(10 * sizeof(int));
+    print_free_node_list();
+    free(nums2);
+    print_free_node_list();
+    int *nums4 = (int *) alloc(10 * sizeof(int));
+    print_free_node_list();
 
     int i;
     for (i = 0; i < 500; i++)
-        nums[i] = i;
+        nums1[i] = i;
 
-    char *msg = alloc(10);
-    for (i = 0; i < 10; i++)
-        msg[i] = 'a' + i;
-    msg[9] = 0x00;
-
-    for (i = 0; i < 500; i++)
-        printf("%d ", nums[i]);
-    printf("\n");
-    printf("%s\n", msg);
+    free(nums1);
+    free(nums3);
+    free(nums4);
 
     return 0;
 }
