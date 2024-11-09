@@ -46,8 +46,18 @@ void *best_fit(size_t size) {
 }
 
 void *worst_fit(size_t size) {
-    /* TO-DO */
-    return NULL;
+    node_t *node = free_list_head;
+    node_t *worst = NULL;
+
+    while (node != NULL) {
+        if (node->size >= size
+        && (worst == NULL || node->size > worst->size))
+            worst = node;
+
+        node = node->next;
+    }
+
+    return worst;
 }
 
 void *first_fit(size_t size) { 
@@ -71,10 +81,10 @@ void print_free_node_list(void) {
 
     printf("--- free node list ----\n");
     while (node != NULL) {
-        printf("--- node #%lu ----\n", counter);
-        printf("addr: %p\n", node);
-        printf("size: %lu\n", node->size);
-        printf("next: %p\n", node->next);
+        printf("  -- node #%lu --\n", counter);
+        printf("  addr: %p\n", node);
+        printf("  size: %lu\n", node->size);
+        printf("  next: %p\n", node->next);
         printf("\n");
 
         node = node->next;
@@ -96,9 +106,16 @@ void *alloc(size_t size) {
     }
 
     /* search for free node */
-    node_t *free_node = (node_t *) first_fit(size);
-    printf("elected node: %p\n", free_node);
+    node_t *free_node = (node_t *) worst_fit(size);
     if (free_node == NULL) return NULL;
+
+    /* previous and next nodes in list */
+    node_t *next_node = free_node;
+    node_t *prev_node = free_list_head;
+    while (prev_node->next != NULL
+        && prev_node != free_node
+        && prev_node->next != free_node)
+        prev_node = prev_node->next;
 
     /* split the node if there is space available */
     size_t new_size = free_node->size - size;
@@ -114,34 +131,20 @@ void *alloc(size_t size) {
             new_node->size = new_size - sizeof(node_t);
             new_node->next = free_node->next;
 
-            /* recover pointer from previous node in free list */
-            node_t *prev_node = free_list_head;
-            while (prev_node->next != NULL
-                && prev_node != free_node
-                && prev_node->next != free_node)
-                prev_node = prev_node->next;
-
-            if (prev_node == free_list_head)
-                free_list_head = new_node;
-            else if (prev_node->next == free_node)
-                prev_node->next = new_node;
+            next_node = new_node;
         }
     }
 
     /* if full node is used, recover pointers */
     else {
-        node_t *prev_node = free_list_head;
-
-        while (prev_node->next != NULL
-            && prev_node != free_node
-            && prev_node->next != free_node)
-            prev_node = prev_node->next;
-
-        if (prev_node == free_list_head)
-            free_list_head = free_node->next;
-        else 
-            prev_node->next = free_node->next;
+        next_node = free_node->next;
     }
+
+    /* adjust pointers in list */
+    if (free_node == free_list_head)
+        free_list_head = next_node;
+    else 
+        prev_node->next = next_node;
 
     /* create header */
     header_t *header = (header_t *) free_node;

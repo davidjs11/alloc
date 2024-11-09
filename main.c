@@ -15,10 +15,6 @@ int main(int argc, char *argv[]) {
     int *nums4 = (int *) alloc(10 * sizeof(int));
     print_free_node_list();
 
-    int i;
-    for (i = 0; i < 500; i++)
-        nums1[i] = i;
-
     free(nums1);
     free(nums3);
     free(nums4);
