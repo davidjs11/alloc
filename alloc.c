@@ -8,6 +8,8 @@
 #define HEAP_SIZE 4096
 #define MAGIC_NUM 0x55
 
+#define ALIGN(size) ((size) + sizeof(void *) - 1) & ~(sizeof(void *) - 1);
+
 
 /* --- data structures --- */
 
@@ -91,13 +93,15 @@ void print_free_node_list(void) {
         counter++;
     }
     printf("\n\n");
-    
 }
 
 
 /* --- public functions --- */
 
 void *alloc(size_t size) {
+    /* align size for better performance */
+    size = ALIGN(size);
+
     /* check free list hasn't been initialized */
     if (free_list_head == NULL) {
         free_list_head = (node_t *) heap;
